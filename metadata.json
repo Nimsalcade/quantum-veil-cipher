@@ -1,0 +1,5 @@
+{
+  "name": "Quantum Veil Cipher",
+  "description": "A 5-layer advanced encryption system featuring Morse transformation, polyalphabetic shifting, and positional scrambling.",
+  "requestFramePermissions": []
+}
