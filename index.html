@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quantum Veil Cipher</title>
+    <title>QVC // Quantum Veil Cipher</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script>
@@ -16,24 +16,45 @@
             },
             colors: {
               cyber: {
-                black: '#0a0a0f',
-                dark: '#13131f',
-                light: '#1f1f33',
+                black: '#050509',
+                dark: '#0d0d1a',
+                light: '#1a1a2e',
                 primary: '#00ff9d',
                 secondary: '#bc13fe',
-                dim: '#00ff9d40',
+                dim: '#00ff9d25',
                 accent: '#00f0ff'
               }
             },
             animation: {
-              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'glitch': 'glitch 1s linear infinite',
+              'scan': 'scan 4s linear infinite',
+              'flicker': 'flicker 8s step-start infinite',
+              'progress': 'progress 0.8s ease-in-out infinite',
+              'shake': 'shake 0.4s ease-in-out',
             },
             keyframes: {
-              glitch: {
-                '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
-                '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
-                '62%': { transform: 'translate(0,0) skew(5deg)' },
+              scan: {
+                '0%': { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(100vh)' },
+              },
+              flicker: {
+                '0%, 95%, 100%': { opacity: '1' },
+                '96%': { opacity: '0.7' },
+                '97%': { opacity: '1' },
+                '98%': { opacity: '0.5' },
+                '99%': { opacity: '1' },
+              },
+              progress: {
+                '0%': { transform: 'scaleX(0)', transformOrigin: 'left' },
+                '50%': { transform: 'scaleX(1)', transformOrigin: 'left' },
+                '51%': { transform: 'scaleX(1)', transformOrigin: 'right' },
+                '100%': { transform: 'scaleX(0)', transformOrigin: 'right' },
+              },
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '20%': { transform: 'translateX(-4px)' },
+                '40%': { transform: 'translateX(4px)' },
+                '60%': { transform: 'translateX(-2px)' },
+                '80%': { transform: 'translateX(2px)' },
               }
             }
           }
@@ -41,24 +62,51 @@
       }
     </script>
     <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
       body {
-        background-color: #050505;
+        background-color: #050509;
         color: #e0e0e0;
+        -webkit-font-smoothing: antialiased;
       }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #050509; }
+      ::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #00ff9d40; }
+
+      @keyframes grid-move {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 40px; }
       }
-      ::-webkit-scrollbar-track {
-        background: #0a0a0f; 
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0,255,157,0.015) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,255,157,0.015) 1px, transparent 1px);
+        background-size: 40px 40px;
+        animation: grid-move 8s linear infinite;
+        pointer-events: none;
+        z-index: 0;
       }
-      ::-webkit-scrollbar-thumb {
-        background: #333; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #00ff9d; 
+
+      #root { position: relative; z-index: 1; }
+
+      .crt-line {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(transparent, rgba(0,255,157,0.04), transparent);
+        animation: scan 6s linear infinite;
+        pointer-events: none;
+        z-index: 9999;
       }
     </style>
   <script type="importmap">
@@ -74,6 +122,7 @@
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
+    <div class="crt-line"></div>
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
