@@ -3,6 +3,8 @@ import { encryptAES, decryptAES } from './aes';
 import { generateHMAC, verifyHMAC } from './hmac';
 import { CipherResult } from '../types';
 
+const KEY_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+
 const CHAR_ALPHA = 'α';
 const CHAR_OMEGA = 'Ω';
 const CHAR_SEP_LETTER = '∆';
@@ -119,8 +121,8 @@ const layer4Scramble = (text: string, key: string): { scrambled: string; grid: s
     grid.push(row);
   }
 
-  const keyMap = key.toUpperCase().split('').map((char, idx) => ({ char, idx }));
-  keyMap.sort((a, b) => a.char.localeCompare(b.char) || a.idx - b.idx);
+  const keyMap = key.split('').map((char, idx) => ({ char, idx }));
+  keyMap.sort((a, b) => a.char.charCodeAt(0) - b.char.charCodeAt(0) || a.idx - b.idx);
 
   let scrambled = '';
   for (const k of keyMap) {
@@ -179,8 +181,8 @@ const reverseLayer4Scramble = (text: string, key: string): string => {
 
   const grid: string[][] = Array.from({ length: rows }, () => Array(width).fill(''));
 
-  const keyMap = key.toUpperCase().split('').map((char, idx) => ({ char, idx }));
-  keyMap.sort((a, b) => a.char.localeCompare(b.char) || a.idx - b.idx);
+  const keyMap = key.split('').map((char, idx) => ({ char, idx }));
+  keyMap.sort((a, b) => a.char.charCodeAt(0) - b.char.charCodeAt(0) || a.idx - b.idx);
 
   let currentIdx = 0;
   for (const k of keyMap) {
@@ -371,12 +373,23 @@ export const computeEntropyScore = (text: string): number => {
   return Math.min(100, Math.round((entropy / Math.max(maxEntropy, 1)) * 100));
 };
 
-export const generateSecureKey = async (length: number = 16): Promise<string> => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const rng = await CSPRNG.create(Math.random().toString() + Date.now(), 'KEYGEN');
+export const generateSecureKey = (length: number = 16): string => {
+  const CHARSET_LEN = KEY_CHARSET.length;
+  const REJECTION_THRESHOLD = 256 - (256 % CHARSET_LEN);
+  const buf = new Uint8Array(length * 2);
+  crypto.getRandomValues(buf);
   let key = '';
-  for (let i = 0; i < length; i++) {
-    key += chars[await rng.nextRange(0, chars.length)];
+  let consumed = 0;
+
+  while (key.length < length) {
+    if (consumed >= buf.length) {
+      crypto.getRandomValues(buf);
+      consumed = 0;
+    }
+    if (buf[consumed] < REJECTION_THRESHOLD) {
+      key += KEY_CHARSET[buf[consumed] % CHARSET_LEN];
+    }
+    consumed++;
   }
   return key;
 };

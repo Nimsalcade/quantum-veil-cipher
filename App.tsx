@@ -48,8 +48,8 @@ const App: React.FC = () => {
       setError('INPUT STREAM & ACCESS KEY REQUIRED');
       return;
     }
-    if (!/^[a-zA-Z]+$/.test(key)) {
-      setError('ACCESS KEY: ALPHABETIC CHARACTERS ONLY (A-Z)');
+    if (!/^[A-Za-z0-9!@#$%^&*]+$/.test(key)) {
+      setError('ACCESS KEY: USE LETTERS, NUMBERS, OR SYMBOLS (!@#$%^&*)');
       return;
     }
     if (key.length < 4) {
@@ -113,9 +113,8 @@ const App: React.FC = () => {
     navigator.clipboard.writeText('').catch(() => {});
   };
 
-  const handleGenerateKey = async () => {
-    const newKey = await generateSecureKey(12);
-    setKey(newKey);
+  const handleGenerateKey = () => {
+    setKey(generateSecureKey(12));
   };
 
   const handleModeSwitch = (newMode: CipherMode) => {
@@ -236,10 +235,10 @@ const App: React.FC = () => {
                 <input
                   type="text"
                   value={key}
-                  onChange={(e) => setKey(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                  onChange={(e) => setKey(e.target.value.replace(/[^A-Za-z0-9!@#$%^&*]/g, ''))}
                   disabled={isProcessing}
                   placeholder="ENTER KEY..."
-                  className="flex-1 bg-black/60 border border-gray-800 focus:border-cyber-primary text-cyber-primary p-3 rounded-md outline-none tracking-[0.3em] font-cyber text-center text-lg placeholder-gray-800 transition-colors disabled:opacity-50 uppercase"
+                  className="flex-1 bg-black/60 border border-gray-800 focus:border-cyber-primary text-cyber-primary p-3 rounded-md outline-none tracking-[0.3em] font-cyber text-center text-lg placeholder-gray-800 transition-colors disabled:opacity-50"
                 />
                 <button
                   onClick={handleGenerateKey}
